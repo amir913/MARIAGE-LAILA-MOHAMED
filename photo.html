@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laïla & Mohamed - 25 avril 2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Georgia', serif;
+    background: linear-gradient(135deg, #f5e6d3 0%, #e8d5b7 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: #5c4a36;
+    text-align: center;
+  }
+  h1 { font-size: 2em; margin-bottom: 10px; font-style: italic; }
+  .date { font-size: 1.1em; margin-bottom: 30px; letter-spacing: 3px; }
+  .status { font-size: 1.1em; margin: 20px 0; min-height: 1.5em; }
+  .spinner {
+    border: 4px solid rgba(92, 74, 54, 0.2);
+    border-top: 4px solid #5c4a36;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+  }
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  img { max-width: 100%; max-height: 75vh; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: none; }
+  .btn {
+    display: inline-block;
+    padding: 14px 30px;
+    margin: 20px 8px;
+    background: #5c4a36;
+    color: #f5e6d3;
+    text-decoration: none;
+    border-radius: 30px;
+    font-size: 1em;
+    letter-spacing: 1px;
+  }
+  .btn.secondary { background: transparent; color: #5c4a36; border: 2px solid #5c4a36; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+  <h1>Laïla & Mohamed</h1>
+  <div class="date">— 25 AVRIL 2026 —</div>
+
+  <div id="waiting">
+    <div class="spinner"></div>
+    <div class="status" id="status">Votre photo arrive dans quelques instants...</div>
+  </div>
+
+  <img id="photo" alt="Votre photo">
+
+  <div id="actions" class="hidden">
+    <a id="download" class="btn" download>Télécharger ma photo</a>
+  </div>
+
+  <div id="error" class="hidden">
+    <p>Impossible de charger la photo. Réessayez dans une minute ou contactez un organisateur.</p>
+  </div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  const photoEl = document.getElementById('photo');
+  const waiting = document.getElementById('waiting');
+  const actions = document.getElementById('actions');
+  const errorEl = document.getElementById('error');
+  const statusEl = document.getElementById('status');
+  const downloadBtn = document.getElementById('download');
+
+  if (!id) {
+    waiting.classList.add('hidden');
+    errorEl.classList.remove('hidden');
+  } else {
+    const url = id + '.jpg';
+    let attempts = 0;
+    const maxAttempts = 40; // ~3 min 20 max
+
+    function tryLoad() {
+      attempts++;
+      const img = new Image();
+      img.onload = () => {
+        photoEl.src = url;
+        photoEl.style.display = 'block';
+        waiting.classList.add('hidden');
+        downloadBtn.href = url;
+        downloadBtn.download = 'laila_mohamed_' + id + '.jpg';
+        actions.classList.remove('hidden');
+      };
+      img.onerror = () => {
+        if (attempts >= maxAttempts) {
+          waiting.classList.add('hidden');
+          errorEl.classList.remove('hidden');
+        } else {
+          if (attempts === 3) statusEl.textContent = 'Chargement en cours...';
+          if (attempts === 10) statusEl.textContent = 'Presque prête, encore un instant...';
+          setTimeout(tryLoad, 5000);
+        }
+      };
+      img.src = url + '?t=' + Date.now();
+    }
+
+    tryLoad();
+  }
+</script>
+</body>
+</html>
