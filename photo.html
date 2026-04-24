@@ -80,7 +80,7 @@
     waiting.classList.add('hidden');
     errorEl.classList.remove('hidden');
   } else {
-    const url = id + '.jpg';
+    const url = id.replace(/^//, '') + '.jpg';
     let attempts = 0;
     const maxAttempts = 40; // ~3 min 20 max
 
